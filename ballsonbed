@@ -1,0 +1,26 @@
+units		metal
+
+dimension	3
+boundary	p p f
+
+atom_style	atomic
+
+lattice	fcc 2.86652
+
+region		bed block 0 20 0 20 0 5 units box
+region		balls block 0 200 0 200 50 200 units box
+
+create_box	1 bed
+create_atoms	1 region bed
+
+mass           1 55.845
+group		bed region bed
+#group		ball region balls
+
+lattice	fcc 2.86652
+read_data 	create_ball/ball.data add append shift 10 10 10 
+replicate 	5 5 1
+#mass		2 55.845 
+
+
+write_data	bednballs.data 
