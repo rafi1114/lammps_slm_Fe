@@ -1,0 +1,16 @@
+#creating a Powder Ball of Fe
+
+
+units		metal
+dimension 	3
+boundary 	p p p
+
+atom_style	atomic
+
+lattice	fcc 2.86652
+region		ball sphere 0 0 0 2
+create_box	1 ball
+create_atoms	1 region ball
+mass		* 55.845
+
+write_data 	data.ball
