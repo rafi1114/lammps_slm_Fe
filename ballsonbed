@@ -1,26 +1,123 @@
 units		metal
 
 dimension	3
-boundary	p p f
+boundary	p p s
 
 atom_style	atomic
 
-lattice	fcc 2.86652
 
-region		bed block 0 20 0 20 0 5 units box
-region		balls block 0 200 0 200 50 200 units box
-
-create_box	1 bed
+lattice	fcc 4.0479
+region		setup block -25 75 -25 75 -25 75 units box
+region		bed block 0 50 0 50 0 5 units box
+region		bedtop block 0 50 0 50 2 5 units box
+create_box	1 setup
 create_atoms	1 region bed
-
-mass           1 55.845
+mass            1 26.981
 group		bed region bed
-#group		ball region balls
+group 		bedtop region bedtop
 
-lattice	fcc 2.86652
-read_data 	create_ball/ball.data add append shift 10 10 10 
-replicate 	5 5 1
-#mass		2 55.845 
+
+
+minimize	1e-5 1e-5 5000 5000
+
+
+
+
+lattice	fcc 4.0479
+read_data 	create_ball/ball.data add append shift 10 10 12 group ball1
+read_data 	create_ball/ball.data add append shift 25 25 12 group ball1
+read_data 	create_ball/ball.data add append shift 40 40 12 group ball1
+read_data 	create_ball/ball.data add append  shift 10 25 12 group ball1
+read_data 	create_ball/ball.data add append shift 10 40 12 group ball1
+read_data 	create_ball/ball.data add append  shift 25 10 12 group ball1
+read_data 	create_ball/ball.data add append  shift 25 40 12 group ball1
+read_data 	create_ball/ball.data add append  shift 40 10 12 group ball1
+read_data 	create_ball/ball.data add append  shift 40 25 12 group hotball1
+
+
+region		ball block 0 50 0 50 5 50
+group		ball1 region ball
+
+region		hotball block 20 40 20 40 10 20
+group 		hotball region hotball
+
+
+neighbor 	0.1 bin
+neigh_modify   delay 10 check no
+
+
+pair_style	eam/alloy
+pair_coeff	* * Al99.eam.alloy Al 
+
+
+delete_atoms	overlap 0.3 bed ball1
+
+velocity 	all create 300.0 3213112 mom no rot no dist gaussian
+fix		1 bedtop nvt temp 300 300 0.1
+
+
+thermo_style 	custom step temp etotal
+
+thermo         100
+
+compute	1 all ke/atom
+dump 		1 all custom 100 tmp.dump id type x y z c_1
+
+timestep 	0.01
+
+run 		10000
 
 
 write_data	bednballs.data 
+
+
+
+unfix		1
+#unfix		2
+
+
+fix		11 ball1 nvt temp 10 10 0.1
+fix		12 hotball1 nvt temp 10 10 0.1
+
+run		10000
+
+unfix		11
+unfix		12
+
+fix		2 ball1 nve 
+fix		8 hotball1 nve
+
+
+fix		3 bedtop nvt temp 300 300 10
+fix		4 hotball1 heat 1 20
+#fix		5 ball1 nvt temp 500 500 10
+timestep 	0.001
+run 		10000
+
+
+unfix		4
+run		10000	
+
+
+
+read_data 	create_ball/ball.data add append shift 10 10 25 group ball2
+read_data 	create_ball/ball.data add append shift 25 25 25 group ball2
+read_data 	create_ball/ball.data add append shift 40 40 25 group ball2
+read_data 	create_ball/ball.data add append shift 10 25 25 group ball2
+read_data 	create_ball/ball.data add append shift 10 40 25 group ball2
+read_data 	create_ball/ball.data add append shift 25 10 25 group ball2
+read_data 	create_ball/ball.data add append shift 25 40 25 group ball2
+read_data 	create_ball/ball.data add append shift 40 10 25 group ball2
+read_data 	create_ball/ball.data add append shift 40 25 25 group ball2	
+
+
+fix		6 ball1 nvt temp 300 300 10
+fix		7 ball2 nvt temp 500 500 10
+timestep 	0.01
+#run 		10000
+
+
+unfix		7
+#run		10000	
+
+
