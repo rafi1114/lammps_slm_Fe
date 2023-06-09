@@ -7,10 +7,30 @@ boundary 	p p p
 
 atom_style	atomic
 
-lattice	fcc 2.86652
+lattice	fcc 4.0479
 region		ball sphere 0 0 0 2
 create_box	1 ball
 create_atoms	1 region ball
-mass		* 55.845
+mass		* 26.981
 
-write_data 	data.ball
+
+group		ball region ball
+pair_style	eam/alloy
+pair_coeff	* * Al99.eam.alloy Al
+
+
+dump		1 all atom 100 tmp.dump	
+
+minimize	0 0 5000 5000
+
+
+thermo		50
+#thermo style	custom step temp etotal
+
+fix 		1 all nvt temp 300 300 10 
+
+timestep	0.001
+run		10000
+write_data 	ball.data
+
+unfix		1
