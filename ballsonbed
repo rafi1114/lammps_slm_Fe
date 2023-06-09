@@ -19,14 +19,14 @@ group 		bedtop region bedtop
 minimize	1e-5 1e-5 5000 5000
 
 lattice	fcc 4.0479
-read_data 	create_ball/ball.data add append shift 10 10 12 group ball1
-read_data 	create_ball/ball.data add append shift 25 25 12 group ball1
-read_data 	create_ball/ball.data add append shift 40 40 12 group ball1
-read_data 	create_ball/ball.data add append  shift 10 25 12 group ball1
-read_data 	create_ball/ball.data add append shift 10 40 12 group ball1
-read_data 	create_ball/ball.data add append  shift 25 10 12 group ball1
-read_data 	create_ball/ball.data add append  shift 25 40 12 group ball1
-read_data 	create_ball/ball.data add append  shift 40 10 12 group ball1
+read_data 	create_ball/ball.data add append shift 10 10 12 group hotball9
+read_data 	create_ball/ball.data add append shift 25 25 12 group hotball3
+read_data 	create_ball/ball.data add append shift 40 40 12 group hotball8
+read_data 	create_ball/ball.data add append  shift 10 25 12 group hotball2
+read_data 	create_ball/ball.data add append shift 10 40 12 group hotball7
+read_data 	create_ball/ball.data add append  shift 25 10 12 group hotball6
+read_data 	create_ball/ball.data add append  shift 25 40 12 group hotball5
+read_data 	create_ball/ball.data add append  shift 40 10 12 group hotball4
 read_data 	create_ball/ball.data add append  shift 40 25 12 group hotball1 ##will apply laser on this ball
 
 neighbor 	0.1 bin
@@ -52,16 +52,12 @@ run 		10000
 
 write_data	bednballs.data 
 
-unfix		1
 
-fix		2 ball1 nve 
 fix		8 hotball1 nve
-fix		3 bedtop nvt temp 300 300 10
-fix		4 hotball1 heat 1 20
-
+fix		4 hotball1 heat 1 5
 timestep 	0.001
-run 		20000
+run 		50000
+
 
 unfix		4
-run		10000	
-
+run		50000	
