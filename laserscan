@@ -46,9 +46,6 @@ pair_style	eam/alloy
 pair_coeff	* * Al99.eam.alloy Al 
 
 
-
-region		mover2 block 0 5 5 10 5 20 units box
-
 delete_atoms	overlap 0.3 bed allballs
 
 variable	dx equal ramp(0,30)
