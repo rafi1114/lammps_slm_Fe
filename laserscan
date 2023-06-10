@@ -1,0 +1,77 @@
+units		metal
+
+dimension	3
+boundary	p p s
+
+atom_style	atomic
+
+
+lattice	fcc 4.0479
+region		setup block -25 100 -25 100 -25 75 units box
+region		bed block 0 50 0 50 0 5 units box
+region		bedtop block 0 50 0 50 2 5 units box
+create_box	1 setup
+create_atoms	1 region bed
+mass            1 26.981
+group		bed region bed
+group 		bedtop region bedtop
+
+minimize	1e-5 1e-5 5000 5000
+
+
+
+
+
+lattice	fcc 4.0479
+read_data 	create_ball/ball.data add append shift 10 10 12 group hotball9
+read_data 	create_ball/ball.data add append shift 25 25 12 group hotball3
+read_data 	create_ball/ball.data add append shift 40 40 12 group hotball8
+read_data 	create_ball/ball.data add append  shift 10 25 12 group hotball2
+read_data 	create_ball/ball.data add append shift 10 40 12 group hotball7
+read_data 	create_ball/ball.data add append  shift 25 10 12 group hotball6
+read_data 	create_ball/ball.data add append  shift 25 40 12 group hotball5
+read_data 	create_ball/ball.data add append  shift 40 10 12 group hotball4
+read_data 	create_ball/ball.data add append  shift 40 25 12 group hotball1 ##will apply laser on this ball
+
+
+group		allballs union hotball1 hotball6 hotball2 hotball3 hotball4 hotball5 hotball7 hotball8 hotball9
+group		middlerow union hotball1 hotball2 hotball3
+group		leftrow union hotball9 hotball6 hotball4
+group		rightrow union hotball5 hotball7 hotball8
+
+neighbor 	0.1 bin
+neigh_modify   delay 10 check no
+
+pair_style	eam/alloy
+pair_coeff	* * Al99.eam.alloy Al 
+
+
+
+region		mover2 block 0 5 5 10 5 20 units box
+
+delete_atoms	overlap 0.3 bed allballs
+
+variable	dx equal ramp(0,30)
+region		mover block 5 15 5 15 4 200 units box move v_dx NULL NULL
+group		mover dynamic all region mover
+
+velocity 	all create 300.0 3213112 mom no rot no dist gaussian
+
+thermo_style 	custom step temp etotal
+thermo         100
+compute	1 all ke/atom
+
+dump 		1 all custom 100 tmp.dump id type x y z c_1
+
+fix		1 bedtop nvt temp 300 300 0.1
+timestep 	0.01
+run 		10000
+
+write_data	bednballs.data 
+
+
+fix		38 mover nve
+fix		34 allballs heat 1 15 region mover
+timestep 	0.001
+run 		30000
+unfix		34	
